@@ -3,11 +3,13 @@
 #include <regex>
 #include <chrono>
 #include <vector>
+#include <hash_map>
 
 /*
 Question 1/
 Question 2/
-
+Question 3/
+Question 4/ Tros complexe, impossible de faire des test;
 */
 
 int main() {
@@ -46,16 +48,12 @@ int main() {
 
 		//Si c'est un nouveau mots.
 		if (w_new == true) {
-
 			//On l'ajoute a la liste
-			liste.push_back({ word,1 });
-		
-			
+			liste.push_back({ word,1 });		
 			/*if (n_nrepeat % 1000 == 0) {
 				// on affiche un mot "propre" sur 1000
 				cout << nombre_lu << ": " << liste.at(n_nrepeat) << endl;
 			}*/
-			
 			n_nrepeat++;
 		}
 		nombre_lu++;

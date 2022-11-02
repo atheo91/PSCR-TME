@@ -1,7 +1,7 @@
 #include "Vec3D.h"
 #include "Rayon.h"
+#include "Sphere.h"
 #include "Scene.h"
-#include "Queue.h"
 #include "Pool.h"
 #include <iostream>
 #include <algorithm>
@@ -11,8 +11,6 @@
 
 using namespace std;
 using namespace pr;
-
-
 
 
 void fillScene(Scene & scene, default_random_engine & re) {
@@ -105,55 +103,13 @@ void exportImage(const char * path, size_t width, size_t height, Color * pixels)
 // NB : en francais pour le cours, preferez coder en english toujours.
 // pas d'accents pour eviter les soucis d'encodage
 
-class PixelJob {
-
-	void PixelWork() {
-		for (int y = 0; y < scene.getHeight(); y++) {
-			// le point de l'ecran par lequel passe ce rayon
-			auto& screenPoint = this->screen[y][this->x];
-			// le rayon a inspecter
-			Rayon  ray(this->scene.getCameraPos(), screenPoint);
-
-			int targetSphere = findClosestInter(this->scene, ray);
-
-			if (targetSphere == -1) {
-				// keep background color
-				continue;
-			}
-			else {
-				const Sphere& obj = *(this->scene.begin() + targetSphere);
-				// pixel prend la couleur de l'objet
-				Color finalcolor = computeColor(obj, ray, this->scene.getCameraPos(), this->lights);
-				// le point de l'image (pixel) dont on vient de calculer la couleur
-				Color& pixel = this->pixels[y * this->scene.getHeight() + this->x];
-				// mettre a jour la couleur du pixel dans l'image finale.
-				pixel = finalcolor;
-			}
-
-		}
-	}
-
-	Scene::screen_t& screen;
-	int& x;
-	vector<Vec3D>& lights;
-	Scene& scene;
-	Color* pixels;
-
-public:
-	PixelJob() : screen(screen), x(x), lights(lights), scene(scene), pixels(pixels) {};
-	void run() {
-		PixelWork();
-	};
-	~PixelJob() {};
-};
-
 int main () {
 
 	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 	// on pose une graine basee sur la date
 	default_random_engine re(std::chrono::system_clock::now().time_since_epoch().count());
 	// definir la Scene : resolution de l'image
-	Scene scene (1000,1000);
+	Scene scene(1000,1000);
 	// remplir avec un peu d'aléatoire
 	fillScene(scene, re);
 	
@@ -171,13 +127,16 @@ int main () {
 	// Les couleurs des pixels dans l'image finale
 	Color * pixels = new Color[scene.getWidth() * scene.getHeight()];
 
-	Queue<PixelJob> p_queue(10000);
-
+	Pool pool(10000);
 
 	// pour chaque pixel, calculer sa couleur
 	for (int x =0 ; x < scene.getWidth() ; x++) {
-	
+		PixelJob * job= new PixelJob(scene, screen, lights, pixels, x);
+		pool.submit(job);
+		delete job;
 	}
+
+	pool.start(4);
 
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 	    std::cout << "Total time "

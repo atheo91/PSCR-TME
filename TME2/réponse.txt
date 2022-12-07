@@ -1,0 +1,13 @@
+Question 1/ 
+566193 mots
+
+Question 2/
+20332 mots différents
+
+Question 3/
+Peace : 114 times.
+War : 298 times.
+Toto : 0 times.
+
+Question 4/
+Complexité pas idéal, peut être beaucoup plus rapide, les tables hash aurais plus rendre cela plus rapide

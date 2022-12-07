@@ -3,74 +3,66 @@
 #include <regex>
 #include <chrono>
 #include <vector>
-#include "Hash_Map.h"
+#include "hash_map.h"
 
-/*
-Question 1/566193 mots totale
-Question 2/20333 mots différents
-Question 3/0 toto, 114 peace, 298 war.
-Question 4/ Tros complexe. On pourrais faire des table de Hash
-*/
 
-int main() {
+int main () {
 	using namespace std;
 	using namespace std::chrono;
 
-	ifstream input = ifstream("./WarAndPeace.txt");
+	ifstream input = ifstream("WarAndPeace.txt");
 
 	auto start = steady_clock::now();
 	cout << "Parsing War and Peace" << endl;
 
-	vector<pair<string, int>> liste;
+	bool mots_vu;
+	size_t non_repeter = 0;
 	size_t nombre_lu = 0;
-	size_t n_nrepeat = 0;
-	bool w_new = true;
-	int c_war = 0, c_peace = 0, c_toto = 0;
-
-	
+	std::vector<pair<string, int>> mots_repeter (1000);
 	// prochain mot lu
 	string word;
-	// une regex qui reconnait les caractères anormaux (négation des lettres)
-	regex re(R"([^a-zA-Z])");
-
-
+	// une regex qui reconnait les caractÃ¨res anormaux (nÃ©gation des lettres)
+	regex re( R"([^a-zA-Z])");
 	while (input >> word) {
-		
-		// élimine la ponctuation et les caractères spéciaux
-		word = regex_replace(word, re, "");
+		// Ã©limine la ponctuation et les caractÃ¨res spÃ©ciaux
+		word = regex_replace ( word, re, "");
 		// passe en lowercase
-		transform(word.begin(), word.end(), word.begin(), ::tolower);
+		transform(word.begin(),word.end(),word.begin(),::tolower);
+
 		// word est maintenant "tout propre"
+		
 
+		/*question 2
+		mots_vu = false;
+		for(unsigned int curseur = 0; curseur < mots_repeter.size(); curseur++){
+			//cout << mots_repeter.at(curseur)<<endl;
+			if(mots_repeter.at(curseur) == word){
+				mots_vu = true;
+				break;
+			}
+		}*/
 
-		w_new = true;
-		//Parcours toutes la table a chaque nouveaux mots pour savoir si il est nouveaux
-		for (auto i = liste.begin(); i != liste.end() && w_new != false; i++) {
-			if (i->first == word) {
-				w_new = false;
-				++i->second;
+		mots_vu = false;
+		for(unsigned int curseur = 0; curseur < mots_repeter.size(); curseur++){
+			//cout << mots_repeter.at(curseur)<<endl;
+			if(mots_repeter.at(curseur).first == word){
+				mots_repeter.at(curseur).second++;
+				mots_vu = true;
+				break;
 			}
 		}
 
-		if (word == "toto") {
-			++c_toto;
+		if(mots_vu == false){
+			//cout << "!" <<endl;
+			mots_repeter.push_back(make_pair(word, 1));
+		    non_repeter++;
 		}
-		else if (word == "war") {
-			++c_war;
-		}
-		else if (word == "peace") {
-			++c_peace;
-		}
+		
+		if (nombre_lu % 100 == 0){
+			// on affiche un mot "propre" sur 100
+			cout << nombre_lu << ": "<< word << endl ;
+			//<< non_repeter << endl;
 
-		//Si c'est un nouveau mots.
-		if (w_new == true) {
-			//On l'ajoute a la liste
-			liste.push_back({ word,1 });		
-			if (n_nrepeat % 1000 == 0) {
-				// on affiche un mot "propre" sur 1000
-				cout << nombre_lu << ": " << liste.at(n_nrepeat).first << endl;
-			}
-			n_nrepeat++;
 		}
 		nombre_lu++;
 	}
@@ -79,15 +71,32 @@ int main() {
 	cout << "Finished Parsing War and Peace" << endl;
 
 	auto end = steady_clock::now();
-	cout << "Parsing took "
-		<< duration_cast<milliseconds>(end - start).count()
-		<< "ms.\n";
+    cout << "Parsing took "
+              << duration_cast<milliseconds>(end - start).count()
+              << "ms.\n";
 
-	cout << "Found a total of " << nombre_lu << " words." << endl;
-	cout << "And a total of " << n_nrepeat << " unrepeated words." << endl;
-	cout << "Number of toto: " << c_toto <<  endl;
-	cout << "Number of peace:" << c_peace << endl;
-	cout << "Number of war: " << c_war << endl;
-	
-	return 0;
+    cout << "Found a total of " << nombre_lu << " words." << endl;
+	cout << "Number of non-repeated words :" << non_repeter << endl;
+
+	int toto = 0, war = 0, peace = 0;
+
+
+	for(unsigned int curseur = 0; curseur < mots_repeter.size(); curseur++){
+		if(mots_repeter.at(curseur).first == "toto"){
+			toto = mots_repeter.at(curseur).second;
+		}
+		if(mots_repeter.at(curseur).first == "war"){
+			war = mots_repeter.at(curseur).second;
+		}
+		if(mots_repeter.at(curseur).first == "peace"){
+			peace = mots_repeter.at(curseur).second;
+		}
+	}
+
+	cout << "Peace : " << peace << " times." << endl;
+	cout << "War : " << war << " times." << endl;
+	cout << "Toto : " << toto << " times." << endl;
+    return 0;
 }
+
+

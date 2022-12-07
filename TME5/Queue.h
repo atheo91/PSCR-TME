@@ -1,65 +1,66 @@
-#pragma once
+#ifndef SRC_QUEUE_H_
+#define SRC_QUEUE_H_
 
+#include <cstdlib>
+#include <mutex>
 
+namespace pr {
+
+// MT safe version of the Queue, non blocking.
 template <typename T>
 class Queue {
-	T** tab;
-	const size_t allocsz;
+	T ** tab;
+	const size_t allocsize;
 	size_t begin;
 	size_t sz;
-	c_v cv;
-	mutable mutex m;
+	mutable std::mutex m;
 
-public:
-	Queue(size_t max_size) : allocsz(max_size), begin(0), sz(0) {
-		tab = new T * tab[max_size];
-		memset(tab, 0, max_size * sizeof(T*));
-	}
-
-	size_t size const() {
-		return sz;
-	}
-
-	T* pop() {
-		unique_lock<mutex> l(m);
-		while (empty()) {
-			cv.wait(l);
-		}
-		
-		T* ret = tab[begin];
-		tab[begin] = nullptr;
-		sz--;
-		begin = (begin + 1) % allocsz
-
-		cv.notify.one();
-		return true;
-	}
-
-	void push(T* element) {
-		unique_lock<mutex> l(m);
-
-		while (full()) {
-			cv.wait(l);
-		}
-		tab[(begin + sz) % allocsz] = element;
-
-		cv.notify.one();
-		sz++;
-	}
-
-	bool full() {
-		return sz == allocsz;
-	}
-
-	bool empty() {
+	// fonctions private, sans protection mutex
+	bool empty() const {
 		return sz == 0;
 	}
-
+	bool full() const {
+		return sz == allocsize;
+	}
+public:
+	Queue(size_t size) :allocsize(size), begin(0), sz(0) {
+		tab = new T*[size];
+		memset(tab, 0, size * sizeof(T*));
+	}
+	size_t size() const {
+		std::unique_lock<std::mutex> lg(m);
+		return sz;
+	}
+	T* pop() {
+		std::unique_lock<std::mutex> lg(m);
+		if (empty()) {
+			return nullptr;
+		}
+		auto ret = tab[begin];
+		tab[begin] = nullptr;
+		sz--;
+		begin = (begin + 1) % allocsize;
+		return ret;
+	}
+	bool push(T* elt) {
+		std::unique_lock<std::mutex> lg(m);
+		if (full()) {
+			return false;
+		}
+		tab[(begin + sz) % allocsize] = elt;
+		sz++;
+		return true;
+	}
 	~Queue() {
+		// ?? lock a priori inutile, ne pas detruire si on travaille encore avec
 		for (size_t i = 0; i < sz; i++) {
-			size_t ind = (begin + i) % allocsz;
+			auto ind = (begin + i) % allocsize;
 			delete tab[ind];
 		}
 		delete[] tab;
 	}
 };
+
+}
+
+#endif /* SRC_QUEUE_H_ */

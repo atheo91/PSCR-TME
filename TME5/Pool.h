@@ -1,32 +1,53 @@
 #pragma once
-#include "src/main.cpp"
 
+#include "Vec3D.h"
+#include "Rayon.h"
+#include "Sphere.h"
+#include "Scene.h"
+#include <iostream>
+#include <algorithm>
+#include <fstream>
+#include <limits>
+#include <random>
+#include "Queue.h"
+#include "Job.h"
+#include <vector>
+#include <thread>
 
+namespace pr {
 
 class Pool {
-	void poolPixel(Queue<PixelJob>& queue) {
-		while (true) {
-			PixelJob* j = queue.pop();
-			if (j == nullptr) {
-				break;
-			}
-			j->run();
-			delete j;
-		}
-	}
-
+	Queue<PixelJob> *queue;
 	std::vector<std::thread> threads;
-	Queue<Job> queue;
-
 public:
 	Pool(int qsize) {
-		Queue<Job> queue(qsize);
-		this->queue = queue;
+		queue = new Queue<PixelJob>(qsize);
 	};
+	void start(int nbthread) {
+		PixelJob* pixelJob;
+		while (queue->size() > 0) {
+			for (int n = 0; n < nbthread; n++) {
+				pixelJob = queue->pop();
+				if(pixelJob != nullptr){
+					threads.emplace_back(std::thread(pixelJob->run()));
+				}
+			}
 
-	~Pool() {};
+			for (std::thread& th : threads) {
+				th.join();
+			}
 
-	void start(int Nthread) {
-		
+		}
 	}
+	void submit(PixelJob* job) {
+		queue->push(job);
+	}
+	void stop() ;
+
+
+	~Pool() {
+		delete queue;
+	};
 };
+
+}

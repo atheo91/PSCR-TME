@@ -3,8 +3,9 @@ class hash_noeud{
 
     public:
         hash_noeud(K key, D data){
-            this.key = key;
-            this.data = data; 
+            this->key = key;
+            this->data = data; 
+            suivant = NULL;
             precedant = NULL;
         }
 
@@ -17,7 +18,7 @@ class hash_noeud{
         }
 
         void setData(D data){
-            this.data = data;
+            this->data = data;
         }
 
         hash_noeud * getNext(){

@@ -1,18 +1,19 @@
 #include "hash_noeud.h"
 
-template<typename K, typename D>
+template<typename K, typename D, size_t tableSize>
 class hash_map{
 
+    public:
     unsigned long hashKey(K key){
-        return key%tableSize;
+        return stoi(key) % tableSize;
     } 
     
     hash_map(){
-        tableSize = 30;
-    }
-
-    hash_map(int size){
-        tableSize = size;
+        int i = 0;
+        while(i< tableSize){
+            table[i] = new hash_noeud<K,D>(NULL, NULL);
+            i++;
+        }
     }
 
     ~hash_map()
@@ -28,23 +29,22 @@ class hash_map{
 
             table[i] = NULL;
         }
-        delete[] table;
     }
 
     bool get(const K &key, D &data){
         unsigned long hash = hashKey(key);
         hash_noeud<K,D> * noeud = table[hash];
         while(noeud != NULL){
-            if(noeud.getKey == key){
-                data = noeud.getData;
+            if(noeud->getKey() == key){
+                data = noeud->getData();
                 return true;
             }
-            noeud = noeud.getNext;
+            noeud = noeud->getNext();
         }
         return false;
     }
 
-    void put(const K &key, D &data){
+    void put(const K &key, const D &data){
         unsigned long hash = hashKey(key);
         hash_noeud<K,D> * noeud = table[hash];
 
@@ -58,7 +58,7 @@ class hash_map{
                 table[hash] = newNoeud;
             }
             else{
-                newNoeud->setBack(noeud.getBack);
+                newNoeud->setBack(noeud->getBack());
             }
         } else{
             noeud->setData(data);
@@ -66,8 +66,5 @@ class hash_map{
     }
 
     private:
-        int tableSize;
-        hash_noeud<K, D> * table[];
-        
-            
+        hash_noeud<K, D> * table[tableSize];
 };

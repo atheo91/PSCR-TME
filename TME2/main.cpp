@@ -16,9 +16,20 @@ int main () {
 	cout << "Parsing War and Peace" << endl;
 
 	bool mots_vu;
+
+	int retour = 0;
 	size_t non_repeter = 0;
 	size_t nombre_lu = 0;
-	std::vector<pair<string, int>> mots_repeter (1000);
+
+	const size_t size = 60000;
+
+	hash_map<string, int, size> * mots_repeter;
+
+	/*Question 2 et 3
+		std::vector<string> mots_repeter(1000);
+		std::vector<pair<string, int>> mots_repeter (1000);
+	*/
+	
 	// prochain mot lu
 	string word;
 	// une regex qui reconnait les caractères anormaux (négation des lettres)
@@ -42,6 +53,7 @@ int main () {
 			}
 		}*/
 
+		/*question 3
 		mots_vu = false;
 		for(unsigned int curseur = 0; curseur < mots_repeter.size(); curseur++){
 			//cout << mots_repeter.at(curseur)<<endl;
@@ -51,11 +63,20 @@ int main () {
 				break;
 			}
 		}
+		*/
+
+		mots_vu = mots_repeter->get(word, retour);
+
 
 		if(mots_vu == false){
 			//cout << "!" <<endl;
-			mots_repeter.push_back(make_pair(word, 1));
+			//mots_repeter.push_back(make_pair(word, 1)); Question 3
+
+			mots_repeter->put(word, 1);
 		    non_repeter++;
+		}
+		else{
+			mots_repeter->put(word, retour+1);
 		}
 		
 		if (nombre_lu % 100 == 0){
@@ -78,9 +99,9 @@ int main () {
     cout << "Found a total of " << nombre_lu << " words." << endl;
 	cout << "Number of non-repeated words :" << non_repeter << endl;
 
+
+	/*Question 3
 	int toto = 0, war = 0, peace = 0;
-
-
 	for(unsigned int curseur = 0; curseur < mots_repeter.size(); curseur++){
 		if(mots_repeter.at(curseur).first == "toto"){
 			toto = mots_repeter.at(curseur).second;
@@ -92,10 +113,11 @@ int main () {
 			peace = mots_repeter.at(curseur).second;
 		}
 	}
+	*/
 
-	cout << "Peace : " << peace << " times." << endl;
-	cout << "War : " << war << " times." << endl;
-	cout << "Toto : " << toto << " times." << endl;
+	//cout << "Peace : " << peace << " times." << endl;
+	//cout << "War : " << war << " times." << endl;
+	//scout << "Toto : " << toto << " times." << endl;
     return 0;
 }
 

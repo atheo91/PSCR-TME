@@ -1,15 +1,14 @@
 #include "ServerSocket.h"
-#include <iostream>
-#include <unistd.h>
+//#include <unistd.h>
 #include <string>
-
+#include <iostream>
 
 int main00() {
 	pr::Socket sock;
-	sock.connect("localhost", 1664);
+	sock.connect_server("localhost", 1664);
 	int N=42;
-	write(sock.getFD(),&N,sizeof(int));
-	read(sock.getFD(),&N,sizeof(int));
+	send(sock.getFD(),(char *)&N,sizeof(int), 0);
+	recv(sock.getFD(),(char *)&N,sizeof(int),0);
 	std::cout << N << std::endl;
 	return 0;
 }
@@ -20,18 +19,18 @@ int main0() {
 
 	pr::Socket sock;
 
-	sock.connect("localhost", 1664);
+	sock.connect_server("localhost", 1664);
 
 	if (sock.isOpen()) {
 		int fd = sock.getFD();
 		int i = 10;
-		ssize_t msz = sizeof(int);
-		if (write(fd, &i, msz) < msz) {
+		size_t msz = sizeof(int);
+		if (send(fd,(char *) &i, msz,0) < msz) {
 			perror("write");
 		}
 		std::cout << "envoyé =" << i << std::endl;
 		int lu;
-		auto nblu = read(fd, &lu, msz);
+		auto nblu = recv(fd, (char *)&lu, msz,0);
 		if (nblu == 0) {
 			std::cout << "Fin connexion par serveur" << std::endl;
 		} else if (nblu < msz) {
@@ -49,21 +48,21 @@ int main() {
 
 	pr::Socket sock;
 
-	sock.connect("localhost", 1664);
+	sock.connect_server("localhost", 1664);
 
 	if (sock.isOpen()) {
 		int fd = sock.getFD();
 
-		ssize_t msz = sizeof(int);
+		size_t msz = sizeof(int);
 		for (int i = 10; i >= 0; i--) {
-			if (write(fd, &i, msz) < msz) {
+			if (send(fd,(char *) &i, msz,0) < msz) {
 				perror("write");
 				break;
 			}
 			std::cout << "envoyé =" << i << std::endl;
 
 			int lu;
-			auto nblu = read(fd, &lu, msz);
+			auto nblu = recv(fd, (char *)&lu, msz,0);
 			if (nblu == 0) {
 				std::cout << "Fin connexion par serveur" << std::endl;
 				break;

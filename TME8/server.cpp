@@ -1,6 +1,6 @@
 #include "ServerSocket.h"
 #include <iostream>
-#include <unistd.h>
+#include <winsock.h>
 
 int main00() {
 	pr::ServerSocket ss(1664);
@@ -11,10 +11,12 @@ int main00() {
 		int fd = sc.getFD();
 
 		int lu;
-		read(fd, &lu, sizeof(int));
+		recv(fd, (char *)&lu, sizeof(int), 0);
 		std::cout << "lu =" << lu << std::endl;
 		lu++;
-		write(fd, &lu, sizeof(int));
+
+
+		send(fd, (char *)&lu, sizeof(int), 0);
 		sc.close();
 	}
 	ss.close();
@@ -29,10 +31,10 @@ int main() {
 
 		int fd = sc.getFD();
 
-		ssize_t msz = sizeof(int);
+		size_t msz = sizeof(int);
 		while (1) {
 			int lu;
-			auto nblu = read(fd, &lu, msz);
+			auto nblu = send(fd, (char *)&lu, msz, 0);
 			if (nblu == 0) {
 				std::cout << "Fin connexion par client" << std::endl;
 				break;
@@ -46,7 +48,7 @@ int main() {
 				break;
 			}
 			lu++;
-			if (write(fd, &lu, msz) < msz) {
+			if (send(fd, (char *)&lu, msz, 0) < msz) {
 				perror("write");
 				break;
 			}

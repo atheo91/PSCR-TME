@@ -5,6 +5,8 @@
 #include <string>
 #include <winsock.h>
 
+//programme traduit pour windows
+
 int main00() {
 
 	WSAData info;
@@ -41,7 +43,7 @@ int main0() {
 		if (send(fd,(char *) &i, msz,0) < msz) {
 			perror("write");
 		}
-		std::cout << "envoyé =" << i << std::endl;
+		std::cout << "envoye =" << i << std::endl;
 		int lu;
 		auto nblu = recv(fd, (char *)&lu, msz,0);
 		if (nblu == 0) {
@@ -51,7 +53,7 @@ int main0() {
 		}
 		std::cout << "lu =" << lu << std::endl;
 	}else{
-		std::cout << "Connection fermée..." <<std::endl;
+		std::cout << "Connection fermee..." <<std::endl;
 	}
 
 	WSACleanup();
@@ -77,11 +79,11 @@ int main() {
 
 		size_t msz = sizeof(int);
 		for (int i = 10; i >= 0; i--) {
-			if (send(fd,(char *) &i, msz,0) < msz) {
+			if (send(fd, (char *)&i, msz,0) < msz) {
 				perror("write");
 				break;
 			}
-			std::cout << "envoyé =" << i << std::endl;
+			std::cout << "envoyer =" << i << std::endl;
 
 			int lu;
 			auto nblu = recv(fd, (char *)&lu, msz,0);

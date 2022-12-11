@@ -2,6 +2,9 @@
 #include <iostream>
 #include <winsock.h>
 
+//programme traduit pour windows
+
+
 int main00() {
 	WSAData info;
 	//Initialiser les socket windows
@@ -43,7 +46,7 @@ int main() {
 		size_t msz = sizeof(int);
 		while (1) {
 			int lu;
-			auto nblu = send(fd, (char *)&lu, msz, 0);
+			auto nblu = recv(fd, (char *)&lu, msz, 0);
 			if (nblu == 0) {
 				std::cout << "Fin connexion par client" << std::endl;
 				break;
@@ -61,7 +64,7 @@ int main() {
 				perror("write");
 				break;
 			}
-			std::cout << "envoyé =" << lu << std::endl;
+			std::cout << "envoyer =" << lu << std::endl;
 		}
 		sc.close();
 	}

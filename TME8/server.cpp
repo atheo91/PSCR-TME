@@ -3,10 +3,14 @@
 #include <winsock.h>
 
 int main00() {
+	WSAData info;
+	//Initialiser les socket windows
+	WSAStartup(MAKEWORD(2,2),&info);
+
 	pr::ServerSocket ss(1664);
 
 	while (1) {
-		pr::Socket sc = ss.accept();
+		pr::ClientSocket sc = ss.accept_connection();
 
 		int fd = sc.getFD();
 
@@ -20,14 +24,19 @@ int main00() {
 		sc.close();
 	}
 	ss.close();
+	WSACleanup();
 	return 0;
 }
 
 int main() {
-	pr::ServerSocket ss(1664);
+	WSAData info;
+	//Initialiser les socket windows
+	WSAStartup(MAKEWORD(2,2),&info);
+
+	pr::ServerSocket ss(1665);
 
 	while (1) {
-		pr::Socket sc = ss.accept();
+		pr::ClientSocket sc = ss.accept_connection();
 
 		int fd = sc.getFD();
 
@@ -56,7 +65,7 @@ int main() {
 		}
 		sc.close();
 	}
-
+	WSACleanup();
 	ss.close();
 	return 0;
 }

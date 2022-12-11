@@ -1,15 +1,24 @@
-#include "ServerSocket.h"
+#include "ClientSocket.h"
 //#include <unistd.h>
 #include <string>
 #include <iostream>
+#include <string>
+#include <winsock.h>
 
 int main00() {
-	pr::Socket sock;
-	sock.connect_server("localhost", 1664);
+
+	WSAData info;
+	//Initialiser les socket windows
+	WSAStartup(MAKEWORD(2,2),&info);
+
+	pr::ClientSocket sock;
+	sock.connect_server("localhost", 1665);
 	int N=42;
 	send(sock.getFD(),(char *)&N,sizeof(int), 0);
 	recv(sock.getFD(),(char *)&N,sizeof(int),0);
 	std::cout << N << std::endl;
+
+	WSACleanup();
 	return 0;
 }
 
@@ -17,9 +26,13 @@ int main00() {
 // avec controle
 int main0() {
 
-	pr::Socket sock;
+	WSAData info;
+	//Initialiser les socket windows
+	WSAStartup(MAKEWORD(2,2),&info);
 
-	sock.connect_server("localhost", 1664);
+	pr::ClientSocket sock;
+
+	sock.connect_server("localhost", 1665);
 
 	if (sock.isOpen()) {
 		int fd = sock.getFD();
@@ -37,8 +50,11 @@ int main0() {
 			perror("read");
 		}
 		std::cout << "lu =" << lu << std::endl;
+	}else{
+		std::cout << "Connection fermée..." <<std::endl;
 	}
 
+	WSACleanup();
 	return 0;
 }
 
@@ -46,11 +62,17 @@ int main0() {
 // avec une boucle, on attend un 0
 int main() {
 
-	pr::Socket sock;
+	pr::ClientSocket sock;
 
-	sock.connect_server("localhost", 1664);
+	WSAData info;
+	//Initialiser les socket windows
+	WSAStartup(MAKEWORD(2,2),&info);
+
+	sock.connect_server("localhost", 1665);
 
 	if (sock.isOpen()) {
+
+		//Le descripteur est de type SOCKET sur windows
 		int fd = sock.getFD();
 
 		size_t msz = sizeof(int);
@@ -72,8 +94,11 @@ int main() {
 			}
 			std::cout << "lu =" << lu << std::endl;
 		}
+	}else{
+		std::cout << "Connection fermée..." <<std::endl;
 	}
 
+	WSACleanup();
 	return 0;
 }
 
